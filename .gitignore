@@ -7,3 +7,7 @@ target/
 **/.mvn
 **/target
 .idea
+**/gulimall.iml
+/gulimall-common.iml
+/renren-generator.iml
+/renren-fast.iml
