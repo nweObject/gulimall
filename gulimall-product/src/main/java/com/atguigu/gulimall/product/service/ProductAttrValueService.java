@@ -10,8 +10,8 @@ import java.util.Map;
 /**
  * spu属性值
  *
- * @author leifengyang
- * @email leifengyang@gmail.com
+ * @author zy
+ * @email zy@gmail.com
  * @date 2019-10-01 21:08:49
  */
 public interface ProductAttrValueService extends IService<ProductAttrValueEntity> {

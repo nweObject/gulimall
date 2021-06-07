@@ -10,8 +10,8 @@ import java.util.Map;
 /**
  * 商品满减信息
  *
- * @author leifengyang
- * @email leifengyang@gmail.com
+ * @author zy
+ * @email zy@gmail.com
  * @date 2019-10-08 09:36:40
  */
 public interface SkuFullReductionService extends IService<SkuFullReductionEntity> {

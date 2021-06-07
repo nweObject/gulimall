@@ -27,8 +27,8 @@ import javax.validation.Valid;
 /**
  * 品牌
  *
- * @author leifengyang
- * @email leifengyang@gmail.com
+ * @author zy
+ * @email zy@gmail.com
  * @date 2019-10-01 22:50:32
  */
 @RestController

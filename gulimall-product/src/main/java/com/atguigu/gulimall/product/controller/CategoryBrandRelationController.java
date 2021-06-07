@@ -8,7 +8,9 @@ import java.util.stream.Collectors;
 import com.atguigu.gulimall.product.entity.BrandEntity;
 import com.atguigu.gulimall.product.vo.BrandVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 import com.atguigu.gulimall.product.entity.CategoryBrandRelationEntity;
@@ -21,9 +23,9 @@ import com.atguigu.common.utils.R;
 /**
  * 品牌分类关联
  *
- * @author leifengyang
- * @email leifengyang@gmail.com
- * @date 2019-11-17 21:25:25
+ * @author zy
+ * @email
+ * @date
  */
 @RestController
 @RequestMapping("product/categorybrandrelation")
@@ -38,7 +40,7 @@ public class CategoryBrandRelationController {
     //@RequiresPermissions("product:categorybrandrelation:list")
     public R cateloglist(@RequestParam("brandId")Long brandId){
         List<CategoryBrandRelationEntity> data = categoryBrandRelationService.list(
-                new QueryWrapper<CategoryBrandRelationEntity>().eq("brand_id",brandId)
+                new QueryWrapper<CategoryBrandRelationEntity>().eq(!ObjectUtils.isEmpty(brandId),"brand_id",brandId)
         );
 
         return R.ok().put("data", data);
