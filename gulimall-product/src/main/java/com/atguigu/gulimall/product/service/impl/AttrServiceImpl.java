@@ -16,10 +16,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -264,6 +261,18 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         PageUtils pageUtils = new PageUtils(page);
 
         return pageUtils;
+    }
+
+    @Override
+    public Set<Long> selectSearchAttrs(List<Long> attrIds) {
+        QueryWrapper<AttrEntity> wrapper = new QueryWrapper<AttrEntity>()
+                .in("attr_id", attrIds)
+                .eq("search_type", 0);
+        Set<Long> collect = baseMapper.selectList(wrapper).stream().map(item ->
+            item.getAttrId()
+        ).collect(Collectors.toSet());
+
+        return collect;
     }
 
 }

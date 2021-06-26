@@ -12,6 +12,7 @@ import com.atguigu.gulimall.product.service.SpuInfoService;
 import com.atguigu.common.utils.PageUtils;
 import com.atguigu.common.utils.R;
 
+import javax.annotation.Resource;
 
 
 /**
@@ -24,7 +25,7 @@ import com.atguigu.common.utils.R;
 @RestController
 @RequestMapping("product/spuinfo")
 public class SpuInfoController {
-    @Autowired
+    @Resource
     private SpuInfoService spuInfoService;
 
     /**
@@ -88,8 +89,12 @@ public class SpuInfoController {
     /**
      * 商品上架
      * */
-    @GetMapping("/{id}/up")
-    public R up(@PathVariable("id") Long  spuId) {
+    @PostMapping(value = "/{spuId}/up")
+    public R upProduct(@PathVariable("spuId")Long  spuId) {
+        /**
+         * 上架spu
+         */
+        spuInfoService.up(spuId);
         return R.ok();
     }
 

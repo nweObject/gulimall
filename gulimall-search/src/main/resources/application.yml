@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: gulimall-search
   cloud:
     nacos:
       discovery:
@@ -9,3 +11,5 @@ elasticsearch:
   HttpHost: 192.168.145.128
   port: 9200
   scheme: "http"
+server:
+  port: 12000

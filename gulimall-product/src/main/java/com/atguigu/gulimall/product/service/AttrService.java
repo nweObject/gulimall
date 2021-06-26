@@ -9,6 +9,7 @@ import com.atguigu.gulimall.product.entity.AttrEntity;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 商品属性
@@ -35,5 +36,10 @@ public interface AttrService extends IService<AttrEntity> {
 
     PageUtils getNoRelationAttr(Map<String, Object> params, Long attrgroupId);
 
+    /**
+     * 获取可供检索的销售属性
+     * @param attrIds 属性
+     * */
+    Set<Long> selectSearchAttrs(List<Long> attrIds);
 }
 
