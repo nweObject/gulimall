@@ -1,13 +1,17 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
+import com.atguigu.gulimall.product.vo.Catelog2Vo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -30,6 +34,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Autowired
     CategoryBrandRelationService categoryBrandRelationService;
+
+    @Autowired
+    RedisTemplate<String, String> redisTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -93,6 +100,63 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     public void updateCascade(CategoryEntity category) {
         this.updateById(category);
         categoryBrandRelationService.updateCategory(category.getCatId(),category.getName());
+    }
+
+    @Override
+    public List<CategoryEntity> getLevel1Categorys() {
+        return baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
+    }
+
+    @Override
+    public Map<String, List<Catelog2Vo>> getCatalogJson() {
+        ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
+        String catalogJson = opsForValue.get("catalogJson");
+        if (StringUtils.isEmpty(catalogJson)) {
+            Map<String, List<Catelog2Vo>> catalogJsonFromDb = getCatalogJsonFromDb();
+            catalogJson = JSON.toJSONString(catalogJsonFromDb);
+            opsForValue.set("catalogJson", catalogJson);
+        }
+        return JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catelog2Vo>>>(){});
+    }
+
+
+    public Map<String, List<Catelog2Vo>> getCatalogJsonFromDb() {
+        //查询所有
+        List<CategoryEntity> cateLogList = baseMapper.selectList(new QueryWrapper<CategoryEntity>());
+        //查询一级分类
+        List<CategoryEntity> categoryLevel1 = getParentCategoryList(cateLogList, 0L);
+        if (categoryLevel1 == null) {
+            return null;
+        }
+        //遍历一级分类并生成Map
+        return categoryLevel1.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            //获取二级分类
+            List<CategoryEntity> categoryLevel2 = getParentCategoryList(cateLogList, v.getCatId());
+            if (categoryLevel2 != null) {
+
+                return categoryLevel2.stream().map(l2 -> {
+                    //三级分类
+                    List<CategoryEntity> categoryLevel3 = getParentCategoryList(cateLogList, l2.getCatId());
+                    List<Catelog2Vo.Category3Vo> category3Vos = null;
+                    if (categoryLevel3 != null) {
+                        category3Vos = categoryLevel3.stream().map(l3 -> {
+                            return new Catelog2Vo.Category3Vo(l2.getCatId().toString(), l3.getCatId().toString(), l3.getName());
+                        }).collect(Collectors.toList());
+                    }
+                    return new Catelog2Vo(v.getCatId().toString(), category3Vos, l2.getCatId().toString(), l2.getName());
+                }).collect(Collectors.toList());
+            }else {
+                Catelog2Vo catelog2Vo = new Catelog2Vo();
+                catelog2Vo.setCatalog1Id(v.getCatId().toString());
+                return Arrays.asList(catelog2Vo);
+            }
+        }));
+    }
+
+    List<CategoryEntity> getParentCategoryList(List<CategoryEntity> categoryEntityList, Long parent_cid) {
+        return categoryEntityList.stream().filter(item ->
+             item.getParentCid().equals(parent_cid)
+        ).collect(Collectors.toList());
     }
 
     //225,25,2
